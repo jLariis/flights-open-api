@@ -1,6 +1,7 @@
+import { Currency } from "src/common/enums/currency.enum";
 
 export class SearchFlight {
-    currency: string;
+    currency: Currency;
     departureAirport: {
         time: string;
         code: string;

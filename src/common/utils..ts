@@ -7,7 +7,6 @@ export const formatToYYYYMMDD = (date: Date): string => {
     return `${year}-${month}-${day}`;
   }
 
-
 export const formatToHHMM = (date: Date): string => {
     const hours = date.getHours();
     const minutes = date.getMinutes().toString().padStart(2, '0');
@@ -36,7 +35,6 @@ export const getDistanceBetweenTwoCoordinates = (coordinateOne: Coordinate, coor
 
     return (HEARTH_KM_RADIO * c).toFixed(2);
 }
-
 
 export const getRandomDateAfter = (date: Date) => {
     const currentDate = new Date();

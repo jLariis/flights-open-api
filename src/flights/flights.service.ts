@@ -8,9 +8,13 @@ import { Repository } from 'typeorm';
 import { Airlines } from 'src/entities/airlines.entity';
 import { Cities } from 'src/entities/cities.entity';
 import { getDistanceBetweenTwoCoordinates, getRandomDateAfter } from 'src/common/utils.';
+import { Currency } from 'src/common/enums/currency.enum';
 
 @Injectable()
 export class FlightsService {
+  private IVA: number = 1.15;
+  private TUA: number = 1.35;
+
   constructor(
     @InjectRepository(Airports)
     private airportsRepository: Repository<Airports>,
@@ -120,17 +124,15 @@ export class FlightsService {
     airlines: Airlines[], 
     originAirport, 
     destinationAirport, 
-    currency: string,
+    currency: Currency,
     distance: number,
   ){
-    
     const randomFlights = [];
 
     for (const airline of airlines) {
       for (let count = 0; count < num; count++) {
-        const pricePerKm = Math.floor(Math.random() * 5) + 1.75;       
-        const price = currency == 'MXN' ? (distance * pricePerKm) / 16.80 : (distance * 0.057);
         const date = getRandomDateAfter(new Date());
+        const priceWhitTaxes = this.getFlightPrice(currency, distance);
 
         const flight = {
           orig_airport: originAirport.airport,
@@ -138,7 +140,10 @@ export class FlightsService {
           airline: airline.airline,
           date: date.date,
           time: date.time,
-          price: price.toFixed(2),
+          price: priceWhitTaxes.price.toFixed(2),
+          taxes: priceWhitTaxes.taxes,
+          IVA: priceWhitTaxes.IVA,
+          TUA: priceWhitTaxes.TUA,
           currency: 'DLLS',
           distance: distance
         };
@@ -148,5 +153,20 @@ export class FlightsService {
     }
   
     return randomFlights;
+  }
+
+  getFlightPrice(currency: Currency, distance: number) {
+    const pricePerKm = Math.floor(Math.random() * 5) + 1.75;
+    const priceBefore = distance * pricePerKm;
+
+    const IVA = priceBefore * this.IVA;
+    const TUA = priceBefore * this.TUA;
+
+    return {
+      price: currency == Currency.MXN ?  (priceBefore / 16.80) : priceBefore,
+      taxes: IVA + TUA,
+      IVA: IVA,
+      TUA: TUA 
+    }
   }
 }
